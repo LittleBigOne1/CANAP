@@ -39,7 +39,7 @@ function showCart() {
           resumeCommande(product.price, quantityChoosen);
           addDetails(product, quantityChoosen, colorChoosen);
           changeQuantity();
-          deleteProduct();
+          //deleteProduct();
         })
         .catch((err) => {
           document.querySelector('#cart__items').innerHTML =
@@ -90,6 +90,7 @@ function resumeCommande(price, quantity) {
   total.innerHTML = totalPrice;
 }
 ///////////////////////// suppression de produit ///////////////////////////
+/*
 function deleteProduct() {
   const deleteButtons = document.querySelectorAll('.deleteItem');
   for (let i = 0; i < localStorageProduct.length; i++) {
@@ -99,16 +100,15 @@ function deleteProduct() {
       let deleteId = localStorageProduct[i].id;
       console.log(deleteId);
       let deleteColor = localStorageProduct[i].color;
-      /*
       console.log(deleteColor);
       localStorageProduct = localStorageProduct.filter(Element => Element.id != deleteId || Element.color != deleteColor)
       localStorage.setItem('cart', JSON.stringify(localStorageProduct));
       let difference = 0 - localStorageProduct[i].quantity;
       resumeCommande(infoProduct[localStorageProduct[i].id].price, difference);
-      */
     });
   }
 }
+*/
 
 //changeQuantity();
 
