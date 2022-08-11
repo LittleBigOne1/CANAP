@@ -8,8 +8,12 @@ function orderIdDisplay(){
       ).innerHTML = `<br>${orderId}<br>Merci pour votre achat`;
       console.log("valeur de l'orderId venant de l'url: " + orderId);
       localStorage.clear();
-      // valeur du numero de commande
-      //réinitialisation du numero de commande
+    }
+    else {
+        document.querySelector(
+            '#orderId'
+          ).innerHTML = '<h3>Connexion impossible</h3>'
+
     }
 }
 orderIdDisplay();

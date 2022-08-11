@@ -31,20 +31,20 @@ function showCart() {
           }
         })
         .then((product) => {
-          //console.table(product);
+          //console.log(product);
           infoProduct[product._id] = {
             quantity: quantityChoosen,
             price: product.price,
           };
           resumeCommande(product.price, quantityChoosen);
           addDetails(product, quantityChoosen, colorChoosen);
+        })
+        .then(() => {
           changeQuantity();
-          //deleteProduct();
+          deleteProduct();
         })
         .catch((err) => {
-          document.querySelector('#cart__items').innerHTML =
-            '<h3>Connexion impossible</h3>';
-          console.log('erreur' + err);
+          console.error(err);
         });
     }
   }
@@ -78,7 +78,6 @@ function addDetails(product, quantity, color) {
     </div>
     </div>
     </article>
-    
     `;
   // fontion de suppression de produit
 }
@@ -90,49 +89,40 @@ function resumeCommande(price, quantity) {
   total.innerHTML = totalPrice;
 }
 ///////////////////////// suppression de produit ///////////////////////////
-/*
+
 function deleteProduct() {
   const deleteButtons = document.querySelectorAll('.deleteItem');
-  for (let i = 0; i < localStorageProduct.length; i++) {
-    console.log(deleteButtons[i]);
 
-    deleteButtons[i].addEventListener('click', () => {
+  //console.log(deleteButtons);
+  for (let i = 0; i < localStorageProduct.length; i++) {
+    console.log(i);
+
+    deleteButtons[i].addEventListener('click', (e) => {
       let deleteId = localStorageProduct[i].id;
-      console.log(deleteId);
+      //console.log(deleteId);
+      //console.log(localStorageProduct);
+      //console.log(localStorageProduct[i].quantity);
       let deleteColor = localStorageProduct[i].color;
       console.log(deleteColor);
-      localStorageProduct = localStorageProduct.filter(Element => Element.id != deleteId || Element.color != deleteColor)
-      localStorage.setItem('cart', JSON.stringify(localStorageProduct));
       let difference = 0 - localStorageProduct[i].quantity;
-      resumeCommande(infoProduct[localStorageProduct[i].id].price, difference);
+      localStorageProduct = localStorageProduct.filter(
+        (Element) => Element.id != deleteId || Element.color != deleteColor
+      );
+      localStorage.setItem('cart', JSON.stringify(localStorageProduct));
+      e.target.closest('.cart__item').remove();
+      //console.log(infoProduct);
+      //console.log(infoProduct[deleteId]);
+      resumeCommande(infoProduct[deleteId].price, difference);
+      //console.log(resumeCommande);
+      //console.log(infoProduct[deleteId]);
+      //console.log(infoProduct[deleteId].price);
+      //console.log(difference);
     });
   }
 }
-*/
-
-//changeQuantity();
-
-/*
-remove du dom
-pop LS
-setItem LS
-
-inputs.forEach((input) => {
-  input.addEventListener('input', (e) => {
-
-
-*/
 
 ///////////////////////// changement de quantité ///////////////////////////
-/*
-let itemQuantity = document.querySelectorAll(".itemQuantity");
-itemQuantity.addEventListener("change", (q) => {
-    for (let item of getProducts) {
-        
-    }
 
-});  
-*/
 function changeQuantity() {
   const cart = document.querySelectorAll('.itemQuantity');
   //console.log(cart);
@@ -151,28 +141,8 @@ function changeQuantity() {
   }
 }
 
-/*
-document.body.addEventListener ("click", (e) => {
-  console.log(e)
-  e.target.remove();
-  });
-  */
-
 //////////////////////// form //////////////////////////////
-/*
-let firstName = document.querySelector('#firstName');
-let lastName = document.querySelector('#lastName');
-let address = document.querySelector('#address');
-let city = document.querySelector('#city');
-let email = document.querySelector('#email');
 
-let submitOrder = document.querySelector('#order');
-
-/////////////////////////////////////////////////////////////////
-
-
-
-*/
 const inputs = document.querySelectorAll(
   'input[type="text"], input[type="email"]'
 );
@@ -239,6 +209,7 @@ const cityChecker = (value) => {
     city = null;
   } else {
     errorDisplay('city', '', true);
+    console.log(city);
     city = value;
   }
 };
@@ -280,6 +251,14 @@ inputs.forEach((input) => {
   });
 });
 
+inputs.forEach((input) => (input.value = ''));
+//console.log(inputs);
+firstName = null;
+lastName = null;
+address = null;
+city = null;
+email = null;
+
 let contact;
 let commande = [];
 
@@ -297,6 +276,7 @@ order.addEventListener('click', (e) => {
       city: city,
       email: email,
     };
+
     console.log(contact);
     //console.log('console.log CONTACT ===>', contact);
     localStorage.setItem('contact', JSON.stringify(contact));
@@ -336,20 +316,7 @@ order.addEventListener('click', (e) => {
         console.log(err);
         alert('erreur');
       });
-    //////////////////       //////////////////////////////
-
-    inputs.forEach((input) => (input.value = ''));
-    //console.log(inputs);
-    firstName = null;
-    lastName = null;
-    address = null;
-    city = null;
-    email = null;
-
-    ////////////////////////////////////////////////////////////////
   } else {
     alert("Veuillez remplir correctement l'ensemble des champs");
   }
 });
-//107fb5b75607497b96722bda5b504926
-//107fb5b75607497b96722bda5b504926

@@ -51,6 +51,7 @@ productChoice.addEventListener('click', () => {
   colorChoosen = colorInput.value;
   quantityChoosen = quantityInput.value;
   let objectToPush = { color: colorChoosen, quantity: quantityChoosen, id: id };
+  console.log(objectToPush)
   if (
     quantityInput.value < 1 ||
     quantityInput.value > 100 ||
