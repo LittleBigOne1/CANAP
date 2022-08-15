@@ -6,7 +6,7 @@ let id = params.get('id');
 //console.log(id);
 let colorChoosen;
 let quantityChoosen;
-
+// Création de la requete de GET sur l'API afin d'afficher le canapé cliqué sur précedemment grace à son id
 fetch('http://localhost:3000/api/products/' + id)
   .then((res) => {
     //console.log(res.ok);
@@ -22,6 +22,7 @@ fetch('http://localhost:3000/api/products/' + id)
     document.querySelector('#item').innerHTML = '<h3>Connexion impossible</h3>';
     //console.log('erreur' + err);
   });
+// affichage du produit choisi par l'utilisateur sur la page précédente
 function articleClicked(product) {
   let zoneImg = document.querySelector('.item__img');
   let zoneTitle = document.querySelector('#title');
@@ -37,21 +38,23 @@ function articleClicked(product) {
   price = product.price;
   //console.log(product.price)
 
+  // création d'une boucle pour incrémentation des choix de couleurs disponibles
   for (color of product.colors) {
-    //console.log('color');
+    console.log(color);
     zoneColor.innerHTML +=
       "<option value='" + color + "'>" + color + '</option>';
   }
 }
 
 let productChoice = document.querySelector('#addToCart');
+// écoute le clique sur le bouton "Ajouter au panier" et si la quantité et la couleur sont valide alors création du panier dans le LS (en vérifiant si dans le LS s'il y a déja un panier et si oui si le produit y est présent)
 productChoice.addEventListener('click', () => {
   let quantityInput = document.querySelector('input[id="quantity"]');
   let colorInput = document.querySelector('#colors');
   colorChoosen = colorInput.value;
   quantityChoosen = quantityInput.value;
   let objectToPush = { color: colorChoosen, quantity: quantityChoosen, id: id };
-  console.log(objectToPush)
+  console.log(objectToPush);
   if (
     quantityInput.value < 1 ||
     quantityInput.value > 100 ||
@@ -79,15 +82,9 @@ productChoice.addEventListener('click', () => {
     } else {
       clientChoice.push(objectToPush);
     }
-    /* if (
-        objectToPush.id == clientChoice.id &&
-        objectToPush.color == clientChoice.color
-      ) {
-      }*/
 
     console.log('CONSOLE.LOG OBJECTTOPUSH ==>', objectToPush);
     localStorage.setItem('cart', JSON.stringify(clientChoice));
-    document.querySelector('#addToCart').style.color = 'rgb(0, 205, 0)';
-    document.querySelector('#addToCart').textContent = 'Produit ajouté !';
+    alert('Article(s) ajouté(s) au');
   }
 });

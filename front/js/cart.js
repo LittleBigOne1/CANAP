@@ -1,14 +1,18 @@
 let total = document.querySelector('#totalPrice');
 let totalQuantity = document.querySelector('#totalQuantity');
-let localStorageProduct = JSON.parse(localStorage.getItem('cart'));
+let localStorageProduct = JSON.parse(localStorage.getItem('cart')); // cart = le panier
 let infoProduct = [];
 let totalPrice = 0;
 let quantityProduct = 0;
 console.log(localStorageProduct);
+
+///// Affichage des produits dans le DOM et gestion de ceux-ci (quantité / prix / suppression )  /////
 function showCart() {
   let getProducts = JSON.parse(localStorage.getItem('cart'));
-  //console.log(getProducts);
+  console.log(getProducts);
+  console.log(localStorage.getItem('cart'));
   document.querySelector('#cart__items').innerHTML = '';
+  // si le panier est vide
   if (getProducts === null) {
     document.querySelector(
       '#cart__items'
@@ -18,11 +22,13 @@ function showCart() {
 
     // Sinon
   } else {
+    // création d'une boucle qui parcours le LS pour récuperer les canapés
     for (let item of getProducts) {
       let quantityChoosen = parseInt(item.quantity);
       let colorChoosen = item.color;
       //console.log(item)
 
+      // Création de la requete de GET sur l'API afin de récupérer chaque canapé du panier grâce à leur id
       fetch('http://localhost:3000/api/products/' + item.id)
         .then((res) => {
           //console.log(res.ok);
@@ -36,6 +42,7 @@ function showCart() {
             quantity: quantityChoosen,
             price: product.price,
           };
+          console.log(infoProduct);
           resumeCommande(product.price, quantityChoosen);
           addDetails(product, quantityChoosen, colorChoosen);
         })
@@ -49,6 +56,7 @@ function showCart() {
     }
   }
 }
+/////////// incrémentation dans le DOM du panier  /////////
 function addDetails(product, quantity, color) {
   let id = product._id;
   let name = product.name;
@@ -79,69 +87,70 @@ function addDetails(product, quantity, color) {
     </div>
     </article>
     `;
-  // fontion de suppression de produit
 }
 showCart();
+/////////// calcul et incrémente dans le DOM la quantité totale ainsi le prix total du panier/////////
 function resumeCommande(price, quantity) {
   totalPrice += price * quantity;
   quantityProduct += quantity;
   totalQuantity.innerHTML = quantityProduct;
   total.innerHTML = totalPrice;
 }
-///////////////////////// suppression de produit ///////////////////////////
-
+///////////////////////// gestion de la suppression d'un produit ///////////////////////////
 function deleteProduct() {
   const deleteButtons = document.querySelectorAll('.deleteItem');
 
   //console.log(deleteButtons);
   for (let i = 0; i < localStorageProduct.length; i++) {
-    console.log(i);
-
+    //console.log(i);
+    //écoute le clic des boutons supprimer afin de supprimer le canapé du DOM et du LS
     deleteButtons[i].addEventListener('click', (e) => {
       let deleteId = localStorageProduct[i].id;
-      //console.log(deleteId);
-      //console.log(localStorageProduct);
-      //console.log(localStorageProduct[i].quantity);
       let deleteColor = localStorageProduct[i].color;
-      console.log(deleteColor);
       let difference = 0 - localStorageProduct[i].quantity;
       localStorageProduct = localStorageProduct.filter(
         (Element) => Element.id != deleteId || Element.color != deleteColor
       );
       localStorage.setItem('cart', JSON.stringify(localStorageProduct));
       e.target.closest('.cart__item').remove();
-      //console.log(infoProduct);
-      //console.log(infoProduct[deleteId]);
+
       resumeCommande(infoProduct[deleteId].price, difference);
-      //console.log(resumeCommande);
-      //console.log(infoProduct[deleteId]);
-      //console.log(infoProduct[deleteId].price);
-      //console.log(difference);
+      console.log(resumeCommande);
     });
   }
 }
 
-///////////////////////// changement de quantité ///////////////////////////
+///////////////////////// gestion du changement de quantité ///////////////////////////
 
 function changeQuantity() {
   const cart = document.querySelectorAll('.itemQuantity');
   //console.log(cart);
+  // création d'un boucle ciblé chaque input de changement de prix
   for (let i = 0; i < cart.length; i++) {
+    // écoute l'input afin de modifier la quantité dans le dom et le LS
     cart[i].addEventListener('input', () => {
-      let changeQty = parseInt(cart[i].value);
-      //console.log(cart[i].value);
-      //console.log(changeQty);
-      let difference = changeQty - localStorageProduct[i].quantity;
-      localStorageProduct[i].quantity = changeQty;
+      let newQty = parseInt(cart[i].value);
+      console.log(cart[i].value);
+      console.log(newQty);
+      let difference = newQty - localStorageProduct[i].quantity;
+      console.log(difference);
+      localStorageProduct[i].quantity = newQty;
+      infoProduct[localStorageProduct[i].id].quantity = newQty;
       console.log(infoProduct);
-      infoProduct[localStorageProduct[i].id].quantity = changeQty;
       localStorage.setItem('cart', JSON.stringify(localStorageProduct));
       resumeCommande(infoProduct[localStorageProduct[i].id].price, difference);
     });
   }
 }
-
-//////////////////////// form //////////////////////////////
+/*
+function resumeCommande(price, quantity) {
+  totalPrice += price * quantity;
+  quantityProduct += quantity;
+  totalQuantity.innerHTML = quantityProduct;
+  total.innerHTML = totalPrice;
+}
+*/
+// **********************  Formulaire de validation de la commande & envois de celle-ci à l'API *********************************
 
 const inputs = document.querySelectorAll(
   'input[type="text"], input[type="email"]'
@@ -228,6 +237,7 @@ const emailChecker = (value) => {
 };
 
 inputs.forEach((input) => {
+  // écoute les input et vérifie s'ils sont valides comme paramétré dans les regex et conditions défini précedemment
   input.addEventListener('input', (e) => {
     switch (e.target.id) {
       case 'firstName':
@@ -261,9 +271,8 @@ email = null;
 
 let contact;
 let commande = [];
-
-const order = document.querySelector('#order');
-order.addEventListener('click', (e) => {
+// écoute le clic sur le bouton "Commander !" et si les infos du formulaire sont valides création d'un objet contact et ajout au LS ainsi que création d'un objet regroupant les informations du formulaires et les canapés choisis et envoi à l'API pour récupérer le numéro de commande et rediriger vers la page de confirmation
+document.querySelector('#order').addEventListener('click', (e) => {
   e.preventDefault();
   //console.log(firstName, lastName, address, city, email);
   if (firstName && lastName && address && city && email) {
@@ -280,25 +289,22 @@ order.addEventListener('click', (e) => {
     console.log(contact);
     //console.log('console.log CONTACT ===>', contact);
     localStorage.setItem('contact', JSON.stringify(contact));
-    //commande = JSON.parse(localStorage.getItem('cart'));
     // parcourir le LS pour extraire l'id et faire une autre boucle pour ajouter l'id autant de fois que de qté
 
-    //console.log('console.log COMMANDE ===>', JSON.parse(commande));
-
-    for (let item of localStorageProduct) {
-      //console.log(JSON.stringifyitem);
-      //console.log(item.id);
-      for (let i = 0; i < item.quantity; i++) {
-        commande.push(item.id);
+    // création d'une boucle qui parcours le LS pour récuperer les canapés
+    for (let canap of localStorageProduct) {
+      // création d'une boucle qui ajoute l'id autant de fois que de quantité dans le tableau "commande"
+      for (let i = 0; i < canap.quantity; i++) {
+        commande.push(canap.id);
       }
 
       console.log('console.log COMMANDE ===>', commande);
-      //console.log(JSON.parse(item));
     }
 
     let userOrder = { contact: contact, products: commande };
     console.log('CONSOLE.LOG userOrder ===>', userOrder);
 
+    // Création de la requete de POST sur l'API afin d'y envoyer l'objet userOrder & récupéré l'id de la commande
     fetch('http://localhost:3000/api/products/order', {
       method: 'POST',
       headers: {
@@ -309,12 +315,12 @@ order.addEventListener('click', (e) => {
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
-        // envoyé à la page confirmation, autre écriture de la valeur "./confirmation.html?commande=${data.orderId}"
+        // redirection vers le page confirmation
         window.location.href = `/front/html/confirmation.html?commande=${data.orderId}`;
       })
       .catch(function (err) {
         console.log(err);
-        alert('erreur');
+        alert('erreur' + err);
       });
   } else {
     alert("Veuillez remplir correctement l'ensemble des champs");
