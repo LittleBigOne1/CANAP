@@ -1,19 +1,15 @@
-let total = document.querySelector('#totalPrice');
-let totalQuantity = document.querySelector('#totalQuantity');
-let localStorageProduct = JSON.parse(localStorage.getItem('cart')); // cart = le panier
-let infoProduct = [];
-let totalPrice = 0;
-let quantityProduct = 0;
-console.log(localStorageProduct);
+let total = document.querySelector('#totalPrice'); // endroit dans le l'html où est le prix total
+let totalQuantity = document.querySelector('#totalQuantity'); // endroit dans le l'html où est la quantité totale
+let localStorageProduct = JSON.parse(localStorage.getItem('cart')); // cart = le panier / variable contenant le LS parsé
+let infoProduct = []; // variable avec tableau contenant les prix et la quantité d'un canapé
+let totalPrice = 0; // variable prix total
+let quantityProduct = 0; // variable quantité totale
 
-///// Affichage des produits dans le DOM et gestion de ceux-ci (quantité / prix / suppression )  /////
+// Affichage des produits dans le DOM et gestion de ceux-ci (quantité / prix / suppression )
 function showCart() {
-  let getProducts = JSON.parse(localStorage.getItem('cart'));
-  console.log(getProducts);
-  console.log(localStorage.getItem('cart'));
   document.querySelector('#cart__items').innerHTML = '';
   // si le panier est vide
-  if (getProducts === null) {
+  if (localStorageProduct === null) {
     document.querySelector(
       '#cart__items'
     ).innerHTML += `<div class="cart__item__img">
@@ -23,40 +19,40 @@ function showCart() {
     // Sinon
   } else {
     // création d'une boucle qui parcours le LS pour récuperer les canapés
-    for (let item of getProducts) {
-      let quantityChoosen = parseInt(item.quantity);
-      let colorChoosen = item.color;
-      //console.log(item)
+    for (let item of localStorageProduct) {
+      let quantityChoosen = parseInt(item.quantity); // quantité choisie
+      let colorChoosen = item.color; // couleur choisie
 
       // Création de la requete de GET sur l'API afin de récupérer chaque canapé du panier grâce à leur id
       fetch('http://localhost:3000/api/products/' + item.id)
+        // si la réponse est bonne elle passe au format json
         .then((res) => {
-          //console.log(res.ok);
           if (res.ok) {
             return res.json();
           }
         })
+        // puis récupération du tableau produits et mis dans la variable product et réutilisation dans les fonctions "resumeCommande" et "addDetails"
         .then((product) => {
-          //console.log(product);
           infoProduct[product._id] = {
             quantity: quantityChoosen,
             price: product.price,
           };
-          console.log(infoProduct);
           resumeCommande(product.price, quantityChoosen);
           addDetails(product, quantityChoosen, colorChoosen);
         })
+        //
         .then(() => {
           changeQuantity();
           deleteProduct();
         })
+        //si erreur tombe dans le catch
         .catch((err) => {
           console.error(err);
         });
     }
   }
 }
-/////////// incrémentation dans le DOM du panier  /////////
+// incrémentation dans le DOM du panier
 function addDetails(product, quantity, color) {
   let id = product._id;
   let name = product.name;
@@ -89,14 +85,14 @@ function addDetails(product, quantity, color) {
     `;
 }
 showCart();
-/////////// calcul et incrémente dans le DOM la quantité totale ainsi le prix total du panier/////////
+// calcul et incrémente dans le DOM la quantité totale ainsi le prix total du panier
 function resumeCommande(price, quantity) {
-  totalPrice += price * quantity;
   quantityProduct += quantity;
+  totalPrice += price * quantity;
   totalQuantity.innerHTML = quantityProduct;
   total.innerHTML = totalPrice;
 }
-///////////////////////// gestion de la suppression d'un produit ///////////////////////////
+// gestion de la suppression d'un produit
 function deleteProduct() {
   const deleteButtons = document.querySelectorAll('.deleteItem');
 
@@ -120,19 +116,18 @@ function deleteProduct() {
   }
 }
 
-///////////////////////// gestion du changement de quantité ///////////////////////////
-
+// gestion du changement de quantité
 function changeQuantity() {
   const cart = document.querySelectorAll('.itemQuantity');
   //console.log(cart);
-  // création d'un boucle ciblé chaque input de changement de prix
+  // création d'un boucle pour ciblé chaque input de changement de prix
   for (let i = 0; i < cart.length; i++) {
     // écoute l'input afin de modifier la quantité dans le dom et le LS
     cart[i].addEventListener('input', () => {
-      let newQty = parseInt(cart[i].value);
+      let newQty = parseInt(cart[i].value);// variable avec la nouvelle quantité
       console.log(cart[i].value);
       console.log(newQty);
-      let difference = newQty - localStorageProduct[i].quantity;
+      let difference = newQty - localStorageProduct[i].quantity; // variable contenant la différence entre la nouvelle quantité et l'ancienne
       console.log(difference);
       localStorageProduct[i].quantity = newQty;
       infoProduct[localStorageProduct[i].id].quantity = newQty;
@@ -142,22 +137,16 @@ function changeQuantity() {
     });
   }
 }
-/*
-function resumeCommande(price, quantity) {
-  totalPrice += price * quantity;
-  quantityProduct += quantity;
-  totalQuantity.innerHTML = quantityProduct;
-  total.innerHTML = totalPrice;
-}
-*/
-// **********************  Formulaire de validation de la commande & envois de celle-ci à l'API *********************************
+
+// **********************  Formulaire de validation de la commande & envois de celui-ci à l'API *********************************
 
 const inputs = document.querySelectorAll(
   'input[type="text"], input[type="email"]'
 );
 //console.log(inputs);
 let firstName, lastName, address, city, email;
-const errorDisplay = (tag, message, valid) => {
+// affichage du message d'erreur si besoin est/ validité du champs
+function errorDisplay(tag, message, valid) {
   const container = document.querySelector('input' + '#' + tag);
   const errorMessage = document.querySelector('#' + tag + 'ErrorMsg');
   if (!valid) {
@@ -167,10 +156,12 @@ const errorDisplay = (tag, message, valid) => {
     container.classList.remove('p');
     errorMessage.textContent = message;
   }
-};
-
-const nameChecker = (value, type) => {
+}
+// vérification du nom/prénom comprenant le nombre de caratère et le regex avec affichage d'un message d'erreur adapté
+function nameChecker(value, type) {
+  // opérateur ternaire qui déterminer s'il s'agit du prénom ou du nom pour afficher un message d'erreur adapté le cas échéant
   const label = type === 'firstName' ? 'prénom' : 'nom';
+  // si nombre de caratère est supérieur à 30 affiche un message d'erreur
   if (value.length > 0 && (value.length < 1 || value.length > 30)) {
     errorDisplay(type, `Le ${label} doit faire entre 1 et 30 caractères`);
     if (type === 'firstName') {
@@ -196,9 +187,10 @@ const nameChecker = (value, type) => {
       lastName = value;
     }
   }
-};
+}
+// vérification de l'adresse comprenant le nombre de caratère et le regex avec affichage d'un message d'erreur adapté
 
-const adressChecker = (value) => {
+function adressChecker(value) {
   if (!value.match(/^[#.0-9a-zA-ZÀ-ÿ\s,-]{2,60}$/)) {
     errorDisplay('address', "L'adresse n'est pas valide");
     address = null;
@@ -206,23 +198,24 @@ const adressChecker = (value) => {
     errorDisplay('address', '', true);
     address = value;
   }
-};
-const cityChecker = (value) => {
+}
+// vérification de la ville comprenant le nombre de caratère et le regex avec affichage d'un message d'erreur adapté
+function cityChecker(value) {
   if (value.length > 0 && (value.length < 1 || value.length > 30)) {
     errorDisplay(
       'city',
-      'Le Nom de la ville doit faire entre 1 et 30 caractères'
+      'Le Nom de la ville doit faire moins de 30 caractères'
     );
-  } else if (!value.match(/^[a-zA-ZÀ-ÿ\s,-]{1,60}$/)) {
+  } else if (!value.match(/^[a-zA-ZÀ-ÿ\s,-]{1,30}$/)) {
     errorDisplay('city', "Ce caractères n'est pas valide");
     city = null;
   } else {
     errorDisplay('city', '', true);
-    console.log(city);
     city = value;
   }
-};
-const emailChecker = (value) => {
+}
+// vérification de l'email avec le regex adapté et affichage d'un d'erreur le cas échéant
+function emailChecker(value) {
   if (
     !value.match(
       /^[_a-z0-9-]+(.[_a-z0-9-]+)*@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,4})$/
@@ -234,10 +227,10 @@ const emailChecker = (value) => {
     errorDisplay('email', '', true);
     email = value;
   }
-};
+}
 
 inputs.forEach((input) => {
-  // écoute les input et vérifie s'ils sont valides comme paramétré dans les regex et conditions défini précedemment
+  // écoute les inputs et joue la fonction de vérification adaptée
   input.addEventListener('input', (e) => {
     switch (e.target.id) {
       case 'firstName':
@@ -260,7 +253,7 @@ inputs.forEach((input) => {
     }
   });
 });
-
+// pour chaque input si le champs est vide alors l'input = null
 inputs.forEach((input) => (input.value = ''));
 //console.log(inputs);
 firstName = null;
@@ -270,13 +263,14 @@ city = null;
 email = null;
 
 let contact;
-let commande = [];
+let commande = [];// tableau vide qui va recevoir les id
 // écoute le clic sur le bouton "Commander !" et si les infos du formulaire sont valides création d'un objet contact et ajout au LS ainsi que création d'un objet regroupant les informations du formulaires et les canapés choisis et envoi à l'API pour récupérer le numéro de commande et rediriger vers la page de confirmation
 document.querySelector('#order').addEventListener('click', (e) => {
+  // annule le comportement par defaut du clic sur le bouton
   e.preventDefault();
   //console.log(firstName, lastName, address, city, email);
   if (firstName && lastName && address && city && email) {
-    // vérifier que tout les champs sont true
+    // vérifier que tout les champs sont valides
 
     const contact = {
       firstName: firstName,
@@ -301,7 +295,7 @@ document.querySelector('#order').addEventListener('click', (e) => {
       console.log('console.log COMMANDE ===>', commande);
     }
 
-    let userOrder = { contact: contact, products: commande };
+    let userOrder = { contact: contact, products: commande }; // objet à envoyer à l'API
     console.log('CONSOLE.LOG userOrder ===>', userOrder);
 
     // Création de la requete de POST sur l'API afin d'y envoyer l'objet userOrder & récupéré l'id de la commande

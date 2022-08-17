@@ -1,23 +1,23 @@
-// affichage produit
+// ******* affichage produit **************
 
-const params = new URLSearchParams(document.location.search);
-//console.log(document.location.search);
-let id = params.get('id');
+const params = new URLSearchParams(document.location.search); // récupération de la recherche de l'url
+let id = params.get('id'); // variable contenant l'id de la recherche de l'url
 //console.log(id);
-let colorChoosen;
-let quantityChoosen;
+let colorChoosen; // couleur choisie par l'utilisateur
+let quantityChoosen; // quantité choisie par l'utilisateur
 // Création de la requete de GET sur l'API afin d'afficher le canapé cliqué sur précedemment grace à son id
 fetch('http://localhost:3000/api/products/' + id)
   .then((res) => {
-    //console.log(res.ok);
+    // si la réponse est bonne elle passe au format json
     if (res.ok) {
       return res.json();
     }
   })
+    // puis récupération du tableau produits et mis dans la variable product
   .then((product) => {
-    //console.table(product);
     articleClicked(product);
   })
+    //si erreur tombe dans le catch et incrémente un mesage d'erreur au DOM
   .catch((err) => {
     document.querySelector('#item').innerHTML = '<h3>Connexion impossible</h3>';
     //console.log('erreur' + err);
@@ -29,18 +29,15 @@ function articleClicked(product) {
   let zoneColor = document.querySelector('#colors');
   let zonePrice = document.querySelector('#price');
   let zoneDescription = document.querySelector('#description');
-  //console.log(zoneImg);
   zoneImg.innerHTML += `<img src='${product.imageUrl}' alt='${product.altTxt}'>`;
   zoneTitle.innerText += product.name;
   zonePrice.innerText += product.price;
   zoneDescription.innerText += product.description;
 
   price = product.price;
-  //console.log(product.price)
 
   // création d'une boucle pour incrémentation des choix de couleurs disponibles
   for (color of product.colors) {
-    console.log(color);
     zoneColor.innerHTML +=
       "<option value='" + color + "'>" + color + '</option>';
   }
@@ -54,7 +51,7 @@ productChoice.addEventListener('click', () => {
   colorChoosen = colorInput.value;
   quantityChoosen = quantityInput.value;
   let objectToPush = { color: colorChoosen, quantity: quantityChoosen, id: id };
-  console.log(objectToPush);
+  //console.log(objectToPush);
   if (
     quantityInput.value < 1 ||
     quantityInput.value > 100 ||
@@ -62,16 +59,17 @@ productChoice.addEventListener('click', () => {
     colorInput.value === '' ||
     colorInput.value === undefined
   ) {
-    console.log(' ==> JE SUIS DANS LA CONDITION INPUT K.O');
+    //console.log(' ==> JE SUIS DANS LA CONDITION INPUT K.O');
     alert('Veuillez renseigner une couleur et/ou une quantité entre 1 et 100');
   } else {
-    console.log('==> ELSE, CREATION LOCALSTORAGE');
+    //console.log('==> ELSE, CREATION LOCALSTORAGE');
     let clientChoice;
     if (localStorage.getItem('cart') != null) {
       clientChoice = JSON.parse(localStorage.getItem('cart'));
     } else {
       clientChoice = [];
     }
+    // variable qui stocke 
     let foundProduct = clientChoice.find(
       (p) => p.id == objectToPush.id && p.color == objectToPush.color
     );
@@ -83,8 +81,9 @@ productChoice.addEventListener('click', () => {
       clientChoice.push(objectToPush);
     }
 
-    console.log('CONSOLE.LOG OBJECTTOPUSH ==>', objectToPush);
+    //console.log('CONSOLE.LOG OBJECTTOPUSH ==>', objectToPush);
+    //création dans le LS du panier (cart) avec l'article choisi (clientChoice) dedans
     localStorage.setItem('cart', JSON.stringify(clientChoice));
-    alert('Article(s) ajouté(s) au');
+    alert('Article(s) ajouté(s) au panier');
   }
 });
