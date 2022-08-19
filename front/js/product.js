@@ -13,11 +13,11 @@ fetch('http://localhost:3000/api/products/' + id)
       return res.json();
     }
   })
-    // puis récupération du tableau produits et mis dans la variable product
+  // puis récupération du tableau produits et mis dans la variable product
   .then((product) => {
     articleClicked(product);
   })
-    //si erreur tombe dans le catch et incrémente un mesage d'erreur au DOM
+  //si erreur tombe dans le catch et incrémente un mesage d'erreur au DOM
   .catch((err) => {
     document.querySelector('#item').innerHTML = '<h3>Connexion impossible</h3>';
     //console.log('erreur' + err);
@@ -36,7 +36,7 @@ function articleClicked(product) {
 
   price = product.price;
 
-  // création d'une boucle pour incrémentation des choix de couleurs disponibles
+  // création d'une boucle pour incrémenter les choix de couleurs disponibles (adapté pour chaque produit)
   for (color of product.colors) {
     zoneColor.innerHTML +=
       "<option value='" + color + "'>" + color + '</option>';
@@ -45,45 +45,54 @@ function articleClicked(product) {
 
 let productChoice = document.querySelector('#addToCart');
 // écoute le clique sur le bouton "Ajouter au panier" et si la quantité et la couleur sont valide alors création du panier dans le LS (en vérifiant si dans le LS s'il y a déja un panier et si oui si le produit y est présent)
-productChoice.addEventListener('click', () => {
-  let quantityInput = document.querySelector('input[id="quantity"]');
-  let colorInput = document.querySelector('#colors');
-  colorChoosen = colorInput.value;
-  quantityChoosen = quantityInput.value;
-  let objectToPush = { color: colorChoosen, quantity: quantityChoosen, id: id };
-  //console.log(objectToPush);
-  if (
-    quantityInput.value < 1 ||
-    quantityInput.value > 100 ||
-    quantityInput.value === undefined ||
-    colorInput.value === '' ||
-    colorInput.value === undefined
-  ) {
-    //console.log(' ==> JE SUIS DANS LA CONDITION INPUT K.O');
-    alert('Veuillez renseigner une couleur et/ou une quantité entre 1 et 100');
-  } else {
-    //console.log('==> ELSE, CREATION LOCALSTORAGE');
-    let clientChoice;
-    if (localStorage.getItem('cart') != null) {
-      clientChoice = JSON.parse(localStorage.getItem('cart'));
+function addToBasket() {
+  productChoice.addEventListener('click', () => {
+    let quantityInput = document.querySelector('input[id="quantity"]');
+    let colorInput = document.querySelector('#colors');
+    colorChoosen = colorInput.value;
+    quantityChoosen = quantityInput.value;
+    let objectToPush = {
+      color: colorChoosen,
+      quantity: quantityChoosen,
+      id: id,
+    };
+    //console.log(objectToPush);
+    if (
+      quantityInput.value < 1 ||
+      quantityInput.value > 100 ||
+      quantityInput.value === undefined ||
+      colorInput.value === '' ||
+      colorInput.value === undefined
+    ) {
+      //console.log(' ==> JE SUIS DANS LA CONDITION INPUT K.O');
+      alert(
+        'Veuillez renseigner une couleur et/ou une quantité entre 1 et 100'
+      );
     } else {
-      clientChoice = [];
-    }
-    // variable qui stocke 
-    let foundProduct = clientChoice.find(
-      (p) => p.id == objectToPush.id && p.color == objectToPush.color
-    );
-    if (foundProduct != null) {
-      let addQuantity =
-        parseInt(quantityChoosen) + parseInt(foundProduct.quantity);
-      foundProduct.quantity = addQuantity;
-    } else {
-      clientChoice.push(objectToPush);
-    }
+      //console.log('==> ELSE, CREATION LOCALSTORAGE');
+      let clientChoice;
+      if (localStorage.getItem('cart') != null) {
+        clientChoice = JSON.parse(localStorage.getItem('cart'));
+      } else {
+        clientChoice = [];
+      }
+      // variable qui stocke
+      let foundProduct = clientChoice.find(
+        (p) => p.id == objectToPush.id && p.color == objectToPush.color
+      );
+      if (foundProduct != null) {
+        let addQuantity =
+          parseInt(quantityChoosen) + parseInt(foundProduct.quantity);
+        foundProduct.quantity = addQuantity;
+      } else {
+        clientChoice.push(objectToPush);
+      }
 
-    //console.log('CONSOLE.LOG OBJECTTOPUSH ==>', objectToPush);
-    //création dans le LS du panier (cart) avec l'article choisi (clientChoice) dedans
-    localStorage.setItem('cart', JSON.stringify(clientChoice));
-    alert('Article(s) ajouté(s) au panier');
-  }
-});
+      //console.log('CONSOLE.LOG OBJECTTOPUSH ==>', objectToPush);
+      //création dans le LS du panier (cart) avec l'article choisi (clientChoice) dedans
+      localStorage.setItem('cart', JSON.stringify(clientChoice));
+      alert('Article(s) ajouté(s) au panier');
+    }
+  });
+}
+addToBasket();

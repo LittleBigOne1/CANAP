@@ -1,4 +1,4 @@
-// Création d'une' requete de GET sur l'API afin de récupérer chaque canapé du panier grâce à leur id
+// Création d'une requete GET sur l'API afin de récupérer chaque canapé du panier grâce à leur id
 fetch('http://localhost:3000/api/products')
   //récupération de la réponse de requete
   .then((res) => {

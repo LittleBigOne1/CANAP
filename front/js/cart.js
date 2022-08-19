@@ -1,6 +1,6 @@
-let total = document.querySelector('#totalPrice'); // endroit dans le l'html où est le prix total
-let totalQuantity = document.querySelector('#totalQuantity'); // endroit dans le l'html où est la quantité totale
-let localStorageProduct = JSON.parse(localStorage.getItem('cart')); // cart = le panier / variable contenant le LS parsé
+let total = document.querySelector('#totalPrice'); // balise dans le l'html où est le prix total
+let totalQuantity = document.querySelector('#totalQuantity'); // balise dans le l'html où est la quantité totale
+let localStorageProduct = JSON.parse(localStorage.getItem('cart')); // cart = le panier / variable contenant le LocalStorage parsé
 let infoProduct = []; // variable avec tableau contenant les prix et la quantité d'un canapé
 let totalPrice = 0; // variable prix total
 let quantityProduct = 0; // variable quantité totale
@@ -52,7 +52,7 @@ function showCart() {
     }
   }
 }
-// incrémentation dans le DOM du panier
+// Implémentation dans le DOM du panier
 function addDetails(product, quantity, color) {
   let id = product._id;
   let name = product.name;
@@ -85,7 +85,7 @@ function addDetails(product, quantity, color) {
     `;
 }
 showCart();
-// calcul et incrémente dans le DOM la quantité totale ainsi le prix total du panier
+// calcul et implémente dans le DOM la quantité totale ainsi le prix total du panier
 function resumeCommande(price, quantity) {
   quantityProduct += quantity;
   totalPrice += price * quantity;
@@ -96,9 +96,7 @@ function resumeCommande(price, quantity) {
 function deleteProduct() {
   const deleteButtons = document.querySelectorAll('.deleteItem');
 
-  //console.log(deleteButtons);
   for (let i = 0; i < localStorageProduct.length; i++) {
-    //console.log(i);
     //écoute le clic des boutons supprimer afin de supprimer le canapé du DOM et du LS
     deleteButtons[i].addEventListener('click', (e) => {
       let deleteId = localStorageProduct[i].id;
@@ -119,16 +117,15 @@ function deleteProduct() {
 // gestion du changement de quantité
 function changeQuantity() {
   const cart = document.querySelectorAll('.itemQuantity');
-  //console.log(cart);
+
   // création d'un boucle pour ciblé chaque input de changement de prix
   for (let i = 0; i < cart.length; i++) {
     // écoute l'input afin de modifier la quantité dans le dom et le LS
     cart[i].addEventListener('input', () => {
-      let newQty = parseInt(cart[i].value);// variable avec la nouvelle quantité
+      let newQty = parseInt(cart[i].value); // variable avec la nouvelle quantité
       console.log(cart[i].value);
       console.log(newQty);
       let difference = newQty - localStorageProduct[i].quantity; // variable contenant la différence entre la nouvelle quantité et l'ancienne
-      console.log(difference);
       localStorageProduct[i].quantity = newQty;
       infoProduct[localStorageProduct[i].id].quantity = newQty;
       console.log(infoProduct);
@@ -143,7 +140,6 @@ function changeQuantity() {
 const inputs = document.querySelectorAll(
   'input[type="text"], input[type="email"]'
 );
-//console.log(inputs);
 let firstName, lastName, address, city, email;
 // affichage du message d'erreur si besoin est/ validité du champs
 function errorDisplay(tag, message, valid) {
@@ -170,6 +166,7 @@ function nameChecker(value, type) {
       lastName = null;
     }
   } else if (!value.match(/^[a-zA-ZÀ-ÿ\s,-]{1,30}$/)) {
+    // expliquer le regex
     errorDisplay(
       type,
       `Le ${label} ne doit pas contenir de caractère spéciaux `
@@ -188,7 +185,7 @@ function nameChecker(value, type) {
     }
   }
 }
-// vérification de l'adresse comprenant le nombre de caratère et le regex avec affichage d'un message d'erreur adapté
+// vérification de l'adresse comprenant le nombre de caractère et le regex avec affichage d'un message d'erreur adapté
 
 function adressChecker(value) {
   if (!value.match(/^[#.0-9a-zA-ZÀ-ÿ\s,-]{2,60}$/)) {
@@ -228,95 +225,86 @@ function emailChecker(value) {
     email = value;
   }
 }
-
-inputs.forEach((input) => {
-  // écoute les inputs et joue la fonction de vérification adaptée
-  input.addEventListener('input', (e) => {
-    switch (e.target.id) {
-      case 'firstName':
-        nameChecker(e.target.value, e.target.id);
-        break;
-      case 'lastName':
-        nameChecker(e.target.value, e.target.id);
-        break;
-      case 'address':
-        adressChecker(e.target.value);
-        break;
-      case 'city':
-        cityChecker(e.target.value);
-        break;
-      case 'email':
-        emailChecker(e.target.value);
-        break;
-      default:
-        null;
-    }
+function inputsChecker() {
+  inputs.forEach((input) => {
+    // écoute les inputs et joue la fonction de vérification adaptée
+    input.addEventListener('input', (e) => {
+      switch (e.target.id) {
+        case 'firstName':
+          nameChecker(e.target.value, e.target.id);
+          break;
+        case 'lastName':
+          nameChecker(e.target.value, e.target.id);
+          break;
+        case 'address':
+          adressChecker(e.target.value);
+          break;
+        case 'city':
+          cityChecker(e.target.value);
+          break;
+        case 'email':
+          emailChecker(e.target.value);
+          break;
+        default:
+          null;
+      }
+    });
   });
-});
-// pour chaque input si le champs est vide alors l'input = null
-inputs.forEach((input) => (input.value = ''));
-//console.log(inputs);
-firstName = null;
-lastName = null;
-address = null;
-city = null;
-email = null;
-
+}
+inputsChecker();
 let contact;
-let commande = [];// tableau vide qui va recevoir les id
+let commande = []; // tableau vide qui va recevoir les id
 // écoute le clic sur le bouton "Commander !" et si les infos du formulaire sont valides création d'un objet contact et ajout au LS ainsi que création d'un objet regroupant les informations du formulaires et les canapés choisis et envoi à l'API pour récupérer le numéro de commande et rediriger vers la page de confirmation
-document.querySelector('#order').addEventListener('click', (e) => {
-  // annule le comportement par defaut du clic sur le bouton
-  e.preventDefault();
-  //console.log(firstName, lastName, address, city, email);
-  if (firstName && lastName && address && city && email) {
-    // vérifier que tout les champs sont valides
+function listenOrder() {
+  document.querySelector('#order').addEventListener('click', (e) => {
+    // annule le comportement par defaut du clic sur le bouton
+    e.preventDefault();
+    //console.log(firstName, lastName, address, city, email);
+    if (firstName && lastName && address && city && email) {
+      // vérifier que tout les champs sont valides
+      // création de l'objet contact
+      const contact = {
+        firstName: firstName,
+        lastName: lastName,
+        address: address,
+        city: city,
+        email: email,
+      };
 
-    const contact = {
-      firstName: firstName,
-      lastName: lastName,
-      address: address,
-      city: city,
-      email: email,
-    };
+      // création d'une boucle qui parcours le LS pour récuperer les canapés
+      for (let canap of localStorageProduct) {
+        // création d'une boucle qui ajoute l'id autant de fois que de quantité dans le tableau "commande"
+        for (let i = 0; i < canap.quantity; i++) {
+          commande.push(canap.id);
+        }
 
-    console.log(contact);
-    //console.log('console.log CONTACT ===>', contact);
-    localStorage.setItem('contact', JSON.stringify(contact));
-    // parcourir le LS pour extraire l'id et faire une autre boucle pour ajouter l'id autant de fois que de qté
-
-    // création d'une boucle qui parcours le LS pour récuperer les canapés
-    for (let canap of localStorageProduct) {
-      // création d'une boucle qui ajoute l'id autant de fois que de quantité dans le tableau "commande"
-      for (let i = 0; i < canap.quantity; i++) {
-        commande.push(canap.id);
+        //console.log('console.log COMMANDE ===>', commande);
       }
 
-      console.log('console.log COMMANDE ===>', commande);
-    }
+      let userOrder = { contact: contact, products: commande }; // objet à envoyer à l'API
+      //console.log('CONSOLE.LOG userOrder ===>', userOrder);
 
-    let userOrder = { contact: contact, products: commande }; // objet à envoyer à l'API
-    console.log('CONSOLE.LOG userOrder ===>', userOrder);
-
-    // Création de la requete de POST sur l'API afin d'y envoyer l'objet userOrder & récupéré l'id de la commande
-    fetch('http://localhost:3000/api/products/order', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userOrder),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        // redirection vers le page confirmation
-        window.location.href = `/front/html/confirmation.html?commande=${data.orderId}`;
+      // Création de la requete de POST sur l'API afin d'y envoyer l'objet userOrder & récupéré l'id de la commande
+      fetch('http://localhost:3000/api/products/order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userOrder),
       })
-      .catch(function (err) {
-        console.log(err);
-        alert('erreur' + err);
-      });
-  } else {
-    alert("Veuillez remplir correctement l'ensemble des champs");
-  }
-});
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          // redirection vers le page confirmation
+          window.location.href = `/front/html/confirmation.html?commande=${data.orderId}`;
+        })
+        .catch(function (err) {
+          console.log(err);
+          alert('erreur' + err);
+        });
+    } else {
+      alert("Veuillez remplir correctement l'ensemble des champs");
+    }
+  });
+}
+listenOrder();
