@@ -4,22 +4,10 @@ let localStorageProduct = JSON.parse(localStorage.getItem('cart')); // cart = le
 let infoProduct = []; // variable avec tableau contenant le prix et la quantité d'un canapé
 let totalPrice = 0; // variable prix total
 let quantityProduct = 0; // variable quantité totale
-function emptyCart() {
-  document.querySelector(
-    '#cart__items'
-  ).innerHTML += `<div class="cart__item__img">
-      <p>Le panier est vide</p>
-      </div>`;
-  totalQuantity.innerHTML = 0;
-  total.innerHTML = 0;
-  // vide le LS
-  localStorage.clear();
-}
 // Affichage des produits dans le DOM et gestion de ceux-ci (quantité / prix / suppression )
 function showCart() {
   // si le panier est vide joue la fonction emptyCart
   if (localStorageProduct === null || localStorageProduct.length === 0) {
-    // affiche un message indiquant que le panier est vide, affiche 0 en quantité totale et prix total, et vide le LS
     emptyCart();
     // Sinon
   } else {
@@ -56,6 +44,18 @@ function showCart() {
         });
     }
   }
+}
+// affiche un message indiquant que le panier est vide, affiche 0 en quantité totale et prix total, et vide le LS
+function emptyCart() {
+  document.querySelector(
+    '#cart__items'
+  ).innerHTML += `<div class="cart__item__img">
+    <p>Le panier est vide</p>
+    </div>`;
+  totalQuantity.innerHTML = 0;
+  total.innerHTML = 0;
+  // vide le LS
+  localStorage.clear();
 }
 // Implémentation dans le DOM du panier
 function addDetails(product, quantity, color) {
@@ -170,7 +170,6 @@ function nameChecker(value, type) {
     }
     //accepte l'ensemble de l'alphabet en majuscule et miniscule tous les caractères accentués
   } else if (!value.match(/^[a-zA-ZÀ-ÿ\s,-]{1,30}$/)) {
-
     // expliquer le regex
     errorDisplay(
       type,
@@ -209,7 +208,7 @@ function cityChecker(value) {
       'city',
       'Le Nom de la ville doit faire moins de 30 caractères'
     );
-      //accepte l'ensemble de l'alphabet en majuscule et miniscule,tous les caractères accentués, les tirets
+    //accepte l'ensemble de l'alphabet en majuscule et miniscule,tous les caractères accentués, les tirets
   } else if (!value.match(/^[a-zA-ZÀ-ÿ\s,-]{1,30}$/)) {
     errorDisplay('city', "Ce caractères n'est pas valide");
     city = null;
