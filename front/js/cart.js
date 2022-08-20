@@ -1,26 +1,31 @@
 let total = document.querySelector('#totalPrice'); // balise dans le l'html où est le prix total
 let totalQuantity = document.querySelector('#totalQuantity'); // balise dans le l'html où est la quantité totale
 let localStorageProduct = JSON.parse(localStorage.getItem('cart')); // cart = le panier / variable contenant le LocalStorage parsé
-let infoProduct = []; // variable avec tableau contenant les prix et la quantité d'un canapé
+let infoProduct = []; // variable avec tableau contenant le prix et la quantité d'un canapé
 let totalPrice = 0; // variable prix total
 let quantityProduct = 0; // variable quantité totale
-
+function emptyCart() {
+  document.querySelector(
+    '#cart__items'
+  ).innerHTML += `<div class="cart__item__img">
+      <p>Le panier est vide</p>
+      </div>`;
+  totalQuantity.innerHTML = 0;
+  total.innerHTML = 0;
+  // vide le LS
+  localStorage.clear();
+}
 // Affichage des produits dans le DOM et gestion de ceux-ci (quantité / prix / suppression )
 function showCart() {
-  document.querySelector('#cart__items').innerHTML = '';
-  // si le panier est vide
-  if (localStorageProduct === null) {
-    document.querySelector(
-      '#cart__items'
-    ).innerHTML += `<div class="cart__item__img">
-      <p>Aucun article dans le panier</p>
-      </div>`;
-
+  // si le panier est vide joue la fonction emptyCart
+  if (localStorageProduct === null || localStorageProduct.length === 0) {
+    // affiche un message indiquant que le panier est vide, affiche 0 en quantité totale et prix total, et vide le LS
+    emptyCart();
     // Sinon
   } else {
     // création d'une boucle qui parcours le LS pour récuperer les canapés
     for (let item of localStorageProduct) {
-      let quantityChoosen = parseInt(item.quantity); // quantité choisie
+      let quantityChoosen = parseInt(item.quantity); // quantité choisie passé dans la fonction parseInt pour avoir un valeur sous numérrique
       let colorChoosen = item.color; // couleur choisie
 
       // Création de la requete de GET sur l'API afin de récupérer chaque canapé du panier grâce à leur id
@@ -91,6 +96,9 @@ function resumeCommande(price, quantity) {
   totalPrice += price * quantity;
   totalQuantity.innerHTML = quantityProduct;
   total.innerHTML = totalPrice;
+  if (localStorageProduct.length === 0) {
+    emptyCart();
+  }
 }
 // gestion de la suppression d'un produit
 function deleteProduct() {
@@ -107,9 +115,7 @@ function deleteProduct() {
       );
       localStorage.setItem('cart', JSON.stringify(localStorageProduct));
       e.target.closest('.cart__item').remove();
-
       resumeCommande(infoProduct[deleteId].price, difference);
-      console.log(resumeCommande);
     });
   }
 }
@@ -123,12 +129,9 @@ function changeQuantity() {
     // écoute l'input afin de modifier la quantité dans le dom et le LS
     cart[i].addEventListener('input', () => {
       let newQty = parseInt(cart[i].value); // variable avec la nouvelle quantité
-      console.log(cart[i].value);
-      console.log(newQty);
       let difference = newQty - localStorageProduct[i].quantity; // variable contenant la différence entre la nouvelle quantité et l'ancienne
       localStorageProduct[i].quantity = newQty;
       infoProduct[localStorageProduct[i].id].quantity = newQty;
-      console.log(infoProduct);
       localStorage.setItem('cart', JSON.stringify(localStorageProduct));
       resumeCommande(infoProduct[localStorageProduct[i].id].price, difference);
     });
@@ -165,7 +168,9 @@ function nameChecker(value, type) {
     } else {
       lastName = null;
     }
+    //accepte l'ensemble de l'alphabet en majuscule et miniscule tous les caractères accentués
   } else if (!value.match(/^[a-zA-ZÀ-ÿ\s,-]{1,30}$/)) {
+
     // expliquer le regex
     errorDisplay(
       type,
@@ -188,6 +193,7 @@ function nameChecker(value, type) {
 // vérification de l'adresse comprenant le nombre de caractère et le regex avec affichage d'un message d'erreur adapté
 
 function adressChecker(value) {
+  //accepte l'ensemble de l'alphabet en majuscule et miniscule tous les caractères accentués ainsi que les nombres et les tirets
   if (!value.match(/^[#.0-9a-zA-ZÀ-ÿ\s,-]{2,60}$/)) {
     errorDisplay('address', "L'adresse n'est pas valide");
     address = null;
@@ -203,6 +209,7 @@ function cityChecker(value) {
       'city',
       'Le Nom de la ville doit faire moins de 30 caractères'
     );
+      //accepte l'ensemble de l'alphabet en majuscule et miniscule,tous les caractères accentués, les tirets
   } else if (!value.match(/^[a-zA-ZÀ-ÿ\s,-]{1,30}$/)) {
     errorDisplay('city', "Ce caractères n'est pas valide");
     city = null;
@@ -215,6 +222,7 @@ function cityChecker(value) {
 function emailChecker(value) {
   if (
     !value.match(
+      //accepte l'ensemble de l'alphabet en miniscule tous les caractères accentués ainsi que(-_ &ç) et dois adopter ce model ****@*****.**
       /^[_a-z0-9-]+(.[_a-z0-9-]+)*@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,4})$/
     )
   ) {
@@ -259,7 +267,6 @@ function listenOrder() {
   document.querySelector('#order').addEventListener('click', (e) => {
     // annule le comportement par defaut du clic sur le bouton
     e.preventDefault();
-    //console.log(firstName, lastName, address, city, email);
     if (firstName && lastName && address && city && email) {
       // vérifier que tout les champs sont valides
       // création de l'objet contact
@@ -277,12 +284,9 @@ function listenOrder() {
         for (let i = 0; i < canap.quantity; i++) {
           commande.push(canap.id);
         }
-
-        //console.log('console.log COMMANDE ===>', commande);
       }
 
       let userOrder = { contact: contact, products: commande }; // objet à envoyer à l'API
-      //console.log('CONSOLE.LOG userOrder ===>', userOrder);
 
       // Création de la requete de POST sur l'API afin d'y envoyer l'objet userOrder & récupéré l'id de la commande
       fetch('http://localhost:3000/api/products/order', {
@@ -294,12 +298,10 @@ function listenOrder() {
       })
         .then((res) => res.json())
         .then((data) => {
-          console.log(data);
           // redirection vers le page confirmation
           window.location.href = `/front/html/confirmation.html?commande=${data.orderId}`;
         })
         .catch(function (err) {
-          console.log(err);
           alert('erreur' + err);
         });
     } else {

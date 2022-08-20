@@ -1,8 +1,6 @@
 // ******* affichage produit **************
-
 const params = new URLSearchParams(document.location.search); // récupération de la recherche de l'url
 let id = params.get('id'); // variable contenant l'id de la recherche de l'url
-//console.log(id);
 let colorChoosen; // couleur choisie par l'utilisateur
 let quantityChoosen; // quantité choisie par l'utilisateur
 // Création de la requete de GET sur l'API afin d'afficher le canapé cliqué sur précedemment grace à son id
@@ -17,10 +15,9 @@ fetch('http://localhost:3000/api/products/' + id)
   .then((product) => {
     articleClicked(product);
   })
-  //si erreur tombe dans le catch et incrémente un mesage d'erreur au DOM
+  //si erreur tombe dans le catch et implémenter un mesage d'erreur au DOM
   .catch((err) => {
     document.querySelector('#item').innerHTML = '<h3>Connexion impossible</h3>';
-    //console.log('erreur' + err);
   });
 // affichage du produit choisi par l'utilisateur sur la page précédente
 function articleClicked(product) {
@@ -36,7 +33,7 @@ function articleClicked(product) {
 
   price = product.price;
 
-  // création d'une boucle pour incrémenter les choix de couleurs disponibles (adapté pour chaque produit)
+  // création d'une boucle pour implémenter les choix de couleurs disponibles (adapté pour chaque produit)
   for (color of product.colors) {
     zoneColor.innerHTML +=
       "<option value='" + color + "'>" + color + '</option>';
@@ -56,7 +53,6 @@ function addToBasket() {
       quantity: quantityChoosen,
       id: id,
     };
-    //console.log(objectToPush);
     if (
       quantityInput.value < 1 ||
       quantityInput.value > 100 ||
@@ -64,12 +60,10 @@ function addToBasket() {
       colorInput.value === '' ||
       colorInput.value === undefined
     ) {
-      //console.log(' ==> JE SUIS DANS LA CONDITION INPUT K.O');
       alert(
         'Veuillez renseigner une couleur et/ou une quantité entre 1 et 100'
       );
     } else {
-      //console.log('==> ELSE, CREATION LOCALSTORAGE');
       let clientChoice;
       if (localStorage.getItem('cart') != null) {
         clientChoice = JSON.parse(localStorage.getItem('cart'));
@@ -88,7 +82,6 @@ function addToBasket() {
         clientChoice.push(objectToPush);
       }
 
-      //console.log('CONSOLE.LOG OBJECTTOPUSH ==>', objectToPush);
       //création dans le LS du panier (cart) avec l'article choisi (clientChoice) dedans
       localStorage.setItem('cart', JSON.stringify(clientChoice));
       alert('Article(s) ajouté(s) au panier');

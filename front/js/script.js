@@ -9,18 +9,16 @@ fetch('http://localhost:3000/api/products')
   })
   // puis récupération du tableau produits et mis dans la variable products
   .then((products) => {
-    console.log(products);
     displayCanap(products);
   })
-  //si erreur tombe dans le catch et incrémente un mesage d'erreur au DOM
+  //si erreur tombe dans le catch et implémente un mesage d'erreur au DOM
   .catch((err) => {
     document.querySelector('#items').innerHTML =
       '<h3>Connexion impossible</h3>';
-    //console.log('erreur' + err);
   });
 // Ajout dans le DOM de chaque canapé récupéré dans à l'API
 function displayCanap(products) {
-  let zoneArticle = document.querySelector('#items'); //variable ciblant la zone où les articles doivent être incrémenté
+  let zoneArticle = document.querySelector('#items'); //variable ciblant la zone où les articles doivent être implémentés
   // création d'un boucle permettant de récupérer chaque canapé et de les ajouter au DOM avec un innerHTML
   for (let article of products) {
     //console.table(article)
